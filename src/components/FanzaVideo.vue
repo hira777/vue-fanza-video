@@ -29,13 +29,22 @@ export default {
   },
   data() {
     return {
+      player: null,
       time: 0,
       currentTime: 0,
       duration: 0,
       isLoading: true
     };
   },
+  mounted() {
+    if (!this.player) {
+      this.initialize();
+    }
+  },
   methods: {
+    initialize() {
+      this.player = this;
+    },
     play() {
       this.$refs.video.play();
     },
@@ -65,4 +74,11 @@ export default {
 };
 </script>
 
-<style></style>
+<style>
+.fanza-video video {
+  margin: 0;
+  padding: 0;
+  width: 560px;
+  height: auto;
+}
+</style>
