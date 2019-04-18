@@ -7,13 +7,39 @@
       :currentTime.prop="time"
       @loadstart="hanleLoadStart"
       @canplaythrough="handleCanplayThrough"
+      @play="handlePlay"
+      @pause="handlePause"
       @timeupdate="handleTimeUpdate"
     ></video>
     <div>
-      <button @click="play">再生</button>
-      <button @click="pause">停止</button>
-      <button @click="backward10Seconds">10秒戻る</button>
-      <button @click="forward10Seconds">10秒進む</button>
+      10
+      <font-awesome-icon
+        :icon="['fas', 'undo']"
+        size="2x"
+        class="fanza-video-button"
+        @click="backward10Seconds"
+      />
+      <font-awesome-icon
+        v-show="!isPlaying"
+        :icon="['far', 'play-circle']"
+        size="3x"
+        class="fanza-video-button"
+        @click="play"
+      />
+      <font-awesome-icon
+        v-show="isPlaying"
+        :icon="['far', 'pause-circle']"
+        size="3x"
+        class="fanza-video-button"
+        @click="pause"
+      />
+      <font-awesome-icon
+        :icon="['fas', 'redo']"
+        size="2x"
+        class="fanza-video-button"
+        @click="forward10Seconds"
+      />
+      10
     </div>
   </div>
 </template>
@@ -33,7 +59,8 @@ export default {
       time: 0,
       currentTime: 0,
       duration: 0,
-      isLoading: true
+      isLoading: true,
+      isPlaying: false
     };
   },
   mounted() {
@@ -46,9 +73,11 @@ export default {
       this.player = this;
     },
     play() {
+      if (this.isPlaying) return;
       this.$refs.video.play();
     },
     pause() {
+      if (!this.isPlaying) return;
       this.$refs.video.pause();
     },
     forward10Seconds() {
@@ -58,6 +87,12 @@ export default {
     backward10Seconds() {
       const nextTime = this.currentTime - 10;
       this.time = nextTime > 0 ? nextTime : 0;
+    },
+    handlePlay() {
+      this.isPlaying = true;
+    },
+    handlePause() {
+      this.isPlaying = false;
     },
     handleTimeUpdate() {
       if (this.isLoading || typeof this.$refs.video === 'undefined') return;
@@ -80,5 +115,15 @@ export default {
   padding: 0;
   width: 560px;
   height: auto;
+}
+
+.fanza-video-button {
+  color: #fff;
+  opacity: 0.7;
+  cursor: pointer;
+}
+
+.fanza-video-button:hover {
+  opacity: 1;
 }
 </style>
