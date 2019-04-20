@@ -6,10 +6,10 @@ import {
   faPlayCircle,
   faPauseCircle
 } from '@fortawesome/free-regular-svg-icons';
-import { faUndo, faRedo } from '@fortawesome/free-solid-svg-icons';
+import { faUndoAlt, faRedoAlt } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
-library.add(faPlayCircle, faPauseCircle, faUndo, faRedo);
+library.add(faPlayCircle, faPauseCircle, faUndoAlt, faRedoAlt);
 
 Vue.component('font-awesome-icon', FontAwesomeIcon);
 

@@ -4,49 +4,64 @@
       ref="video"
       autoplay
       :src="src"
-      :currentTime.prop="time"
+      :currentTime.prop="timeProp"
       @loadstart="hanleLoadStart"
       @canplaythrough="handleCanplayThrough"
       @play="handlePlay"
       @pause="handlePause"
       @timeupdate="handleTimeUpdate"
     ></video>
-    <div>
-      10
+    <vue-slider
+      v-model="progress"
+      :duration="0"
+      tooltip="none"
+      style="margin: 0 auto;"
+      @change="handleSliderChange"
+    ></vue-slider>
+    <div class="fanza-video-time">
+      {{ timeDisplay }}
+    </div>
+    <div class="fanza-video-control">
+      <span class="fanza-video-second--left">10</span>
       <font-awesome-icon
-        :icon="['fas', 'undo']"
+        :icon="['fas', 'undo-alt']"
         size="2x"
-        class="fanza-video-button"
+        class="fanza-video-button "
         @click="backward10Seconds"
       />
       <font-awesome-icon
         v-show="!isPlaying"
         :icon="['far', 'play-circle']"
         size="3x"
-        class="fanza-video-button"
+        class="fanza-video-button fanza-video-button--play"
         @click="play"
       />
       <font-awesome-icon
         v-show="isPlaying"
         :icon="['far', 'pause-circle']"
         size="3x"
-        class="fanza-video-button"
+        class="fanza-video-button fanza-video-button--pause"
         @click="pause"
       />
       <font-awesome-icon
-        :icon="['fas', 'redo']"
+        :icon="['fas', 'redo-alt']"
         size="2x"
         class="fanza-video-button"
         @click="forward10Seconds"
       />
-      10
+      <span class="fanza-video-second--right">10</span>
     </div>
   </div>
 </template>
 
 <script>
+import VueSlider from 'vue-slider-component';
+import 'vue-slider-component/theme/default.css';
 export default {
   name: 'FanzaVideo',
+  components: {
+    VueSlider
+  },
   props: {
     src: {
       type: String,
@@ -56,12 +71,31 @@ export default {
   data() {
     return {
       player: null,
-      time: 0,
+      timeProp: 0,
       currentTime: 0,
       duration: 0,
-      isLoading: true,
+      progress: 0,
+      isLoading: false,
       isPlaying: false
     };
+  },
+  computed: {
+    timeDisplay() {
+      return `${this.to2DigitTime(this.currentTime / 60)}:${this.to2DigitTime(
+        this.currentTime % 60
+      )} / ${this.to2DigitTime(this.duration / 60)}:${this.to2DigitTime(
+        this.duration % 60
+      )}`;
+    },
+    progressPercentage() {
+      return Math.floor((this.currentTime / this.duration) * 100);
+    }
+  },
+  watch: {
+    progressPercentage(v) {
+      if (this.progress === v) return;
+      this.progress = v;
+    }
   },
   mounted() {
     if (!this.player) {
@@ -69,6 +103,9 @@ export default {
     }
   },
   methods: {
+    to2DigitTime(time) {
+      return ('00' + Math.floor(time)).slice(-2);
+    },
     initialize() {
       this.player = this;
     },
@@ -82,11 +119,11 @@ export default {
     },
     forward10Seconds() {
       const nextTime = this.currentTime + 10;
-      this.time = nextTime < this.duration ? nextTime : this.duration;
+      this.timeProp = nextTime < this.duration ? nextTime : this.duration;
     },
     backward10Seconds() {
       const nextTime = this.currentTime - 10;
-      this.time = nextTime > 0 ? nextTime : 0;
+      this.timeProp = nextTime > 0 ? nextTime : 0;
     },
     handlePlay() {
       this.isPlaying = true;
@@ -104,12 +141,23 @@ export default {
     handleCanplayThrough() {
       this.isLoading = false;
       this.duration = Math.floor(this.$refs.video.duration);
+    },
+    handleSliderChange() {
+      const timeAfterChange = Math.floor(
+        this.duration * (this.progress * 0.01)
+      );
+      if (this.timeProp !== timeAfterChange) {
+        this.timeProp = timeAfterChange;
+      }
     }
   }
 };
 </script>
 
 <style>
+.fanza-video {
+  color: #fff;
+}
 .fanza-video video {
   margin: 0;
   padding: 0;
@@ -117,10 +165,40 @@ export default {
   height: auto;
 }
 
+.fanza-video-control {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 10px;
+  position: relative;
+  color: #fff;
+}
+
+.fanza-video-second--left {
+  position: absolute;
+  top: 17px;
+  left: 212px;
+  font-size: 10px;
+  pointer-events: none;
+}
+
+.fanza-video-second--right {
+  position: absolute;
+  top: 17px;
+  right: 213px;
+  font-size: 10px;
+  pointer-events: none;
+}
+
 .fanza-video-button {
   color: #fff;
   opacity: 0.7;
   cursor: pointer;
+}
+
+.fanza-video-button.fanza-video-button--play,
+.fanza-video-button.fanza-video-button--pause {
+  margin: 0 20px;
 }
 
 .fanza-video-button:hover {
